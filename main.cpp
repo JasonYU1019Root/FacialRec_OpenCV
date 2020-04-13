@@ -1,0 +1,101 @@
+//CopyRight @ Jason YU.
+
+#include <iostream>
+#include <opencv2/opencv.hpp>
+
+using namespace std;
+using namespace cv;
+
+//global variables
+double fps = 60;//frames per second
+string face_cascade_name = "./haarcascade_frontalface_alt.xml";
+CascadeClassifier face_cascade;
+const static Scalar colors[]={//define different colors for different people
+    CV_RGB(255,255,0),//yellow for admin
+    CV_RGB(255,255,255),//white for ordinary people
+    CV_RGB(255,0,0)};//red for people of interest
+double scale = 2;
+
+int main()
+{
+    Mat frame;//frame read from video
+    //char fileName[100];
+
+    //import the video file
+    //cout<<"Please enter the Video File name with extension: ";
+    //cin>>fileName;cout<<"Importing Video File...\n";
+    VideoCapture capture("./Original_Video001.avi");
+    if(!capture.isOpened())
+    {
+        cout<<"Error! Video File not loaded.\n";
+        return -1;
+    }
+    cout<<"Video File successfully imported.\n";
+    //initialize video recorder
+    VideoWriter vidRec("./Processed Video.avi",VideoWriter::fourcc('D','I','V','X'),fps,Size(1280,720));
+
+    //import a gray template
+    Mat temp = imread("./Template_001.jpg",0);
+    if(temp.empty())
+    {
+        cout<<"Error! Template not loaded.\n";
+        return -1;
+    }
+    cout<<"Template successfully imported.\n";
+    resize(temp,temp,Size(100,100));
+    //imshow("test_temp",temp);
+    //waitKey();
+
+    //run facial recognition
+    cout<<"Facial Recognition running...\n";
+    //load cascades
+    //if(!face_cascade.load(face_cascade_name)){cout<<"Error! Face cascade not loaded.\n";return -1;}
+    cout<<"Face cascade successfully loaded.\n";
+    //run facial rec on each frame of the video file
+    while(capture.read(frame))
+    {
+        vector<Rect>faces;//vector to store faces
+        //create zoomed out frames to boost detection
+        Mat frame_gray,smallImg(cvRound(frame.rows/scale),cvRound(frame.cols/scale),CV_8UC1);
+
+        //convert the frame to gray to apply Haar-like algorithm
+        cvtColor(frame,frame_gray,COLOR_BGR2GRAY);
+        //resize the frame using bilinear difference
+        resize(frame_gray,smallImg,smallImg.size(),0,0,INTER_LINEAR);
+        //equalizeHist the resized frame
+        equalizeHist(smallImg,smallImg);//enhance the frame
+
+        //detect faces
+        //parameters: (image,objects,scaleFactor,minNeighbors,flags,minSize,maxSize)
+        //face_cascade.detectMultiScale(smallImg,faces,1.05,6,0,Size(30,30),Size());
+
+        //display a message when no face detected
+        if(faces.size()<=0)
+        {
+            //set text box parameters
+            string text_noFace = "No Face Detected!";
+            int font_face_noFace = FONT_HERSHEY_COMPLEX;
+            double font_scale_noFace = 2;
+            int thickness_noFace = 2;
+            int baseline_noFace;
+            //obtain the size of the text box
+            Size text_noFace_size = getTextSize(text_noFace,font_face_noFace,font_scale_noFace,thickness_noFace,&baseline_noFace);
+            //draw text
+            Point origin_noFace;
+            origin_noFace.x=cvRound(frame.cols*0.5-text_noFace_size.width*0.5);
+            origin_noFace.y=cvRound(frame.rows*0.5+text_noFace_size.height*0.5);
+            putText(frame,text_noFace,origin_noFace,font_face_noFace,font_scale_noFace,colors[2],thickness_noFace,8,0);
+        }
+
+        //display the processed frame
+        imshow("Facial Rec Running...",frame);
+        vidRec<<frame;
+        if(waitKey(1000/fps)>=0)break;
+    }
+
+    //display a message when the video file was done facial recognizing
+    cout<<"Facial Recognition completed. The processed video file was generated.\n";
+
+    system("pause");
+    return 0;
+}
