@@ -8,8 +8,8 @@ using namespace cv;
 
 //global variables
 double fps = 30;//frames per second
-string face_cascade_name = "./haarcascade_frontalface_alt.xml";
-//CascadeClassifier face_cascade;
+string face_cascade_name = "haarcascade_frontalface_alt.xml";
+CascadeClassifier face_cascade;
 const static Scalar colors[]={//define different colors for different people
     CV_RGB(255,255,0),//yellow for admin
     CV_RGB(255,255,255),//white for ordinary people
@@ -53,9 +53,8 @@ int main()
     //run facial recognition
     cout<<"Facial Recognition running...\n";
     //load cascades
-    //CascadeClassifier face_cascade;
-    //if(!face_cascade.load(face_cascade_name)){cout<<"Error! Face cascade not loaded.\n";return -1;}
-    //cout<<"Face cascade successfully loaded.\n";
+    if(!face_cascade.load(face_cascade_name)){cout<<"Error! Face cascade not loaded.\n";return -1;}
+    cout<<"Face cascade successfully loaded.\n";
 
     //run facial rec on each frame of the video file
     while(capture.read(frame))
@@ -73,7 +72,7 @@ int main()
 
         //detect faces
         //parameters: (image,objects,scaleFactor,minNeighbors,flags,minSize,maxSize)
-        //face_cascade.detectMultiScale(smallImg,faces,1.05,6,0,Size(30,30),Size());
+        face_cascade.detectMultiScale(smallImg,faces,1.05,6,0,Size(30,30),Size());
 
         //display a message when no face detected
         if(faces.size()<=0)
@@ -91,6 +90,19 @@ int main()
             origin_noFace.x=cvRound(frame.cols*0.5-text_noFace_size.width*0.5);
             origin_noFace.y=cvRound(frame.rows*0.5+text_noFace_size.height*0.5);
             putText(frame,text_noFace,origin_noFace,font_face_noFace,font_scale_noFace,colors[2],thickness_noFace,8,0);
+        }
+
+        //highlight the detected faces
+        for(vector<Rect>::const_iterator r=faces.begin();r!=faces.end();r++)
+        {
+            //the frame had been zoomed out, now zoomed back
+            rectangle(
+                      frame,
+                      Point(cvRound((r->x)*scale),cvRound((r->y)*scale)),
+                      Point(cvRound((r->x+r->width-1)*scale),cvRound((r->y+r->height-1)*scale)),
+                      colors[1],3,8,0);
+
+            //text highlight
         }
 
         //display the processed frame
