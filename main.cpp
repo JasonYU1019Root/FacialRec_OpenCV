@@ -9,12 +9,12 @@ using namespace cv;
 //global variables
 double fps = 60;//frames per second
 string face_cascade_name = "./haarcascade_frontalface_alt.xml";
-CascadeClassifier face_cascade;
+//CascadeClassifier face_cascade;
 const static Scalar colors[]={//define different colors for different people
     CV_RGB(255,255,0),//yellow for admin
     CV_RGB(255,255,255),//white for ordinary people
-    CV_RGB(255,0,0)};//red for people of interest
-double scale = 2;
+    CV_RGB(255,0,0)};//red for person of interest
+double scale = 2;//the scale factor to zoom frames
 
 int main()
 {
@@ -25,23 +25,22 @@ int main()
     //cout<<"Please enter the Video File name with extension: ";
     //cin>>fileName;cout<<"Importing Video File...\n";
     VideoCapture capture("./Original_Video001.avi");
-    if(!capture.isOpened())
+    if(!capture.isOpened())//check if the video file was loaded
     {
         cout<<"Error! Video File not loaded.\n";
         return -1;
-    }
-    cout<<"Video File successfully imported.\n";
+    }cout<<"Video File successfully imported.\n";
+
     //initialize video recorder
     VideoWriter vidRec("./Processed Video.avi",VideoWriter::fourcc('D','I','V','X'),fps,Size(1280,720));
 
     //import a gray template
     Mat temp = imread("./Template_001.jpg",0);
-    if(temp.empty())
+    if(temp.empty())//check if the template was loaded
     {
         cout<<"Error! Template not loaded.\n";
         return -1;
-    }
-    cout<<"Template successfully imported.\n";
+    }cout<<"Template successfully imported.\n";
     resize(temp,temp,Size(100,100));
     //imshow("test_temp",temp);
     //waitKey();
@@ -49,8 +48,10 @@ int main()
     //run facial recognition
     cout<<"Facial Recognition running...\n";
     //load cascades
-    //if(!face_cascade.load(face_cascade_name)){cout<<"Error! Face cascade not loaded.\n";return -1;}
+    CascadeClassifier face_cascade;
+    if(!face_cascade.load(face_cascade_name)){cout<<"Error! Face cascade not loaded.\n";return -1;}
     cout<<"Face cascade successfully loaded.\n";
+
     //run facial rec on each frame of the video file
     while(capture.read(frame))
     {
@@ -67,7 +68,7 @@ int main()
 
         //detect faces
         //parameters: (image,objects,scaleFactor,minNeighbors,flags,minSize,maxSize)
-        //face_cascade.detectMultiScale(smallImg,faces,1.05,6,0,Size(30,30),Size());
+        face_cascade.detectMultiScale(smallImg,faces,1.05,6,0,Size(30,30),Size());
 
         //display a message when no face detected
         if(faces.size()<=0)
@@ -95,6 +96,8 @@ int main()
 
     //display a message when the video file was done facial recognizing
     cout<<"Facial Recognition completed. The processed video file was generated.\n";
+    //close the video player and recorder
+    capture.release();vidRec.release();
 
     system("pause");
     return 0;
