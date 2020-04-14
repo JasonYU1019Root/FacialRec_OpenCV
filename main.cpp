@@ -7,7 +7,7 @@ using namespace std;
 using namespace cv;
 
 //global variables
-double fps = 60;//frames per second
+double fps = 30;//frames per second
 string face_cascade_name = "./haarcascade_frontalface_alt.xml";
 //CascadeClassifier face_cascade;
 const static Scalar colors[]={//define different colors for different people
@@ -24,7 +24,7 @@ int main()
     //import the video file
     //cout<<"Please enter the Video File name with extension: ";
     //cin>>fileName;cout<<"Importing Video File...\n";
-    VideoCapture capture("./Original_Video001.avi");
+    VideoCapture capture("./Original_Video_360p.avi");
     if(!capture.isOpened())//check if the video file was loaded
     {
         cout<<"Error! Video File not loaded.\n";
@@ -32,7 +32,12 @@ int main()
     }cout<<"Video File successfully imported.\n";
 
     //initialize video recorder
-    VideoWriter vidRec("./Processed Video.avi",VideoWriter::fourcc('D','I','V','X'),fps,Size(1280,720));
+    VideoWriter vidRec("./Processed_Video001.avi",0,fps,Size(600,360),true);
+    if(!vidRec.isOpened())//check if the video recorder was ready
+    {
+        cout<<"Error! Video Recorder not ready.\n";
+        return -1;
+    }cout<<"Video Recorder ready.\n";
 
     //import a gray template
     Mat temp = imread("./Template_001.jpg",0);
@@ -48,9 +53,9 @@ int main()
     //run facial recognition
     cout<<"Facial Recognition running...\n";
     //load cascades
-    CascadeClassifier face_cascade;
-    if(!face_cascade.load(face_cascade_name)){cout<<"Error! Face cascade not loaded.\n";return -1;}
-    cout<<"Face cascade successfully loaded.\n";
+    //CascadeClassifier face_cascade;
+    //if(!face_cascade.load(face_cascade_name)){cout<<"Error! Face cascade not loaded.\n";return -1;}
+    //cout<<"Face cascade successfully loaded.\n";
 
     //run facial rec on each frame of the video file
     while(capture.read(frame))
@@ -68,7 +73,7 @@ int main()
 
         //detect faces
         //parameters: (image,objects,scaleFactor,minNeighbors,flags,minSize,maxSize)
-        face_cascade.detectMultiScale(smallImg,faces,1.05,6,0,Size(30,30),Size());
+        //face_cascade.detectMultiScale(smallImg,faces,1.05,6,0,Size(30,30),Size());
 
         //display a message when no face detected
         if(faces.size()<=0)
