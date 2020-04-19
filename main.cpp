@@ -18,6 +18,10 @@ double scale = 2;//the scale factor to zoom frames
 
 int main()
 {
+    //load cascades
+    if(!face_cascade.load(face_cascade_name)){cout<<"Error! Face cascade not loaded.\n";return -1;}
+    cout<<"Face cascade successfully loaded.\n";
+
     Mat frame;//frame read from video
     //char fileName[100];
 
@@ -32,7 +36,8 @@ int main()
     }cout<<"Video File successfully imported.\n";
 
     //initialize video recorder
-    VideoWriter vidRec("./Processed_Video001.avi",0,fps,Size(600,360),true);
+    VideoWriter vidRec;
+    vidRec.open("Processed_Video.avi",VideoWriter::fourcc('M','J','P','G'),fps,Size(600,360));
     if(!vidRec.isOpened())//check if the video recorder was ready
     {
         cout<<"Error! Video Recorder not ready.\n";
@@ -52,10 +57,6 @@ int main()
 
     //run facial recognition
     cout<<"Facial Recognition running...\n";
-    //load cascades
-    if(!face_cascade.load(face_cascade_name)){cout<<"Error! Face cascade not loaded.\n";return -1;}
-    cout<<"Face cascade successfully loaded.\n";
-
     //run facial rec on each frame of the video file
     while(capture.read(frame))
     {
@@ -107,14 +108,15 @@ int main()
 
         //display the processed frame
         imshow("Facial Rec Running...",frame);
-        vidRec<<frame;
-        if(waitKey(1000/fps)>=0)break;
+        waitKey(1000/fps);
+        vidRec.write(frame);
     }
 
     //display a message when the video file was done facial recognizing
     cout<<"Facial Recognition completed. The processed video file was generated.\n";
-    //close the video player and recorder
+    //release all objects and resources
     capture.release();vidRec.release();
+    destroyAllWindows();
 
     system("pause");
     return 0;
