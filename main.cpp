@@ -35,9 +35,12 @@ int main()
         return -1;
     }cout<<"Video File successfully imported.\n";
 
+    //obtain video size for recorder
+    Size video_size(capture.get(CAP_PROP_FRAME_WIDTH),capture.get(CAP_PROP_FRAME_HEIGHT));
+
     //initialize video recorder
     VideoWriter vidRec;
-    vidRec.open("Processed_Video.avi",VideoWriter::fourcc('M','J','P','G'),fps,Size(600,360));
+    vidRec.open("Processed_Video.avi",VideoWriter::fourcc('M','J','P','G'),fps,video_size);
     if(!vidRec.isOpened())//check if the video recorder was ready
     {
         cout<<"Error! Video Recorder not ready.\n";
