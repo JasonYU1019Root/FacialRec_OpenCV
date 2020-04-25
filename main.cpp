@@ -28,7 +28,7 @@ int main()
     //import the video file
     //cout<<"Please enter the Video File name with extension: ";
     //cin>>fileName;cout<<"Importing Video File...\n";
-    VideoCapture capture("./Original_Video_360p.avi");
+    VideoCapture capture("./Original Video.avi");
     if(!capture.isOpened())//check if the video file was loaded
     {
         cout<<"Error! Video File not loaded.\n";
@@ -40,7 +40,7 @@ int main()
 
     //initialize video recorder
     VideoWriter vidRec;
-    vidRec.open("Processed_Video.avi",VideoWriter::fourcc('M','J','P','G'),fps,video_size);
+    vidRec.open("Processed Video.avi",VideoWriter::fourcc('M','J','P','G'),fps,video_size);
     if(!vidRec.isOpened())//check if the video recorder was ready
     {
         cout<<"Error! Video Recorder not ready.\n";
@@ -48,7 +48,7 @@ int main()
     }cout<<"Video Recorder ready.\n";
 
     //import a gray template
-    Mat temp = imread("./Template_001.jpg",0);
+    Mat temp = imread("./Template.jpg",0);
     if(temp.empty())//check if the template was loaded
     {
         cout<<"Error! Template not loaded.\n";
